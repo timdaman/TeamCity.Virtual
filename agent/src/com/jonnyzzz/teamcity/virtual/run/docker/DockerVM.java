@@ -81,11 +81,11 @@ public class DockerVM extends BaseVM implements VMRunner {
         final String name = "teamcity_" + StringUtil.generateUniqueHash();
         final List<String> additionalCommands = additionalCommands(context.getRunnerParameters().get(VMConstants.PARAMETER_DOCKER_CUSTOM_COMMANDLINE));
 
-        builder.addTryProcess(
+        /*builder.addTryProcess(
                 block("Pulling the image", cmd.commandline(
                         checkoutDir, Arrays.asList("docker", "pull", ctx.getImageName())
                 ))
-        );
+        );*/
 
         builder.addTryProcess(
                 block("Executing the command using " + ctx.getShellLocation(), cmd.commandline(
