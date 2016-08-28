@@ -3,4 +3,5 @@
 out
 build/.m2
 lib.fetched
+.DS_Store
 
