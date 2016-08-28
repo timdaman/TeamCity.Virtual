@@ -80,7 +80,8 @@ public class DockerVM extends BaseVM implements VMRunner {
       @Override
       public void buildWithScriptFile(@NotNull final File script) throws RunBuildException {
         final String name = "teamcity_" + StringUtil.generateUniqueHash();
-        final List<String> additionalCommands = additionalCommands(context.getRunnerParameters().get(VMConstants.PARAMETER_DOCKER_CUSTOM_COMMANDLINE));
+        final List<String> dockerArgs = new ArrayList<String>();
+        dockerArgs.addAll(additionalCommands(context.getRunnerParameters().get(VMConstants.PARAMETER_DOCKER_CUSTOM_COMMANDLINE)));
 
         /*builder.addTryProcess(
                 block("Pulling the image", cmd.commandline(
@@ -90,19 +91,19 @@ public class DockerVM extends BaseVM implements VMRunner {
 
         // Mount $SSH_AUTH_SOCK into the container if the SSH agent build feature is enabled
         if (context.getBuild().getBuildFeaturesOfType("ssh-agent-build-feature").size() > 0) {
-            additionalCommands.add("-v");
-            additionalCommands.add("$SSH_AUTH_SOCK:/tmp/ssh_auth_sock");
-            additionalCommands.add("-e");
-            additionalCommands.add("SSH_AUTH_SOCK=/tmp/ssh_auth_sock");
+            dockerArgs.add("-v");
+            dockerArgs.add("$SSH_AUTH_SOCK:/tmp/ssh_auth_sock");
+            dockerArgs.add("-e");
+            dockerArgs.add("SSH_AUTH_SOCK=/tmp/ssh_auth_sock");
         }
 
         // Attach the container directly to the host's network
-        additionalCommands.add("--network=host");
+        dockerArgs.add("--network=host");
 
         builder.addTryProcess(
                 block("Executing the command using " + ctx.getShellLocation(), cmd.commandline(
                         checkoutDir,
-                        dockerRun(name, workDir, additionalCommands, scriptRun(script))
+                        dockerRun(name, workDir, dockerArgs, scriptRun(script))
                 ))
         );
         builder.addFinishProcess(block("Terminating images (if needed)", cmd.commandline(checkoutDir, Arrays.asList("docker", "kill", name, "2>&1", "||", "true"))));
