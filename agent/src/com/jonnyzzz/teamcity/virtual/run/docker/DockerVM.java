@@ -28,6 +28,7 @@ import jetbrains.buildServer.agent.BuildFinishedStatus;
 import jetbrains.buildServer.agent.BuildProcess;
 import jetbrains.buildServer.agent.BuildProgressLogger;
 import jetbrains.buildServer.agent.BuildRunnerContext;
+import jetbrains.buildServer.agentServer.BuildFeatureInfo;
 import jetbrains.buildServer.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -86,6 +87,14 @@ public class DockerVM extends BaseVM implements VMRunner {
                         checkoutDir, Arrays.asList("docker", "pull", ctx.getImageName())
                 ))
         );*/
+
+        // Mount $SSH_AUTH_SOCK into the container if the SSH agent build feature is enabled
+        if (context.getBuild().getBuildFeaturesOfType("ssh-agent-build-feature").size() > 0) {
+            additionalCommands.add("-v");
+            additionalCommands.add("$SSH_AUTH_SOCK:/tmp/ssh_auth_sock");
+            additionalCommands.add("-e");
+            additionalCommands.add("SSH_AUTH_SOCK=/tmp/ssh_auth_sock");
+        }
 
         builder.addTryProcess(
                 block("Executing the command using " + ctx.getShellLocation(), cmd.commandline(
