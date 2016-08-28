@@ -96,6 +96,9 @@ public class DockerVM extends BaseVM implements VMRunner {
             additionalCommands.add("SSH_AUTH_SOCK=/tmp/ssh_auth_sock");
         }
 
+        // Attach the container directly to the host's network
+        additionalCommands.add("--network=host");
+
         builder.addTryProcess(
                 block("Executing the command using " + ctx.getShellLocation(), cmd.commandline(
                         checkoutDir,
